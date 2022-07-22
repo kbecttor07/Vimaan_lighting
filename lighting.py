@@ -1,3 +1,4 @@
+# Importing Libraries
 import numpy as np
 import math
 import copy
@@ -7,6 +8,8 @@ import vector3d.point as v3dpt
 import matplotlib.pyplot as plt
 from matplotlib import projections
 
+# Defining Functions
+
 # Way to calculate norm/euclidean dist
 def distance(coord, pallet_anchor):
   dist = []
@@ -14,11 +17,23 @@ def distance(coord, pallet_anchor):
   dist.append(pallet_anchor)
   return np.linalg.norm(dist)
 
+# Calculate Vector Angle
+
 def angle_xy_sin(a, c):
-  return np.arctan(((a[0] - c[0])/(a[1] - c[1])))
+  if (a[1] - c[1]) == 0:
+    n = 1
+  else:
+    n = (a[1] - c[1])
+  return np.arctan(((a[0] - c[0])/n))
 
 def angle_yz_cos(a, c):
-  return np.arctan(((a[1] - c[1])/(a[2] - c[2])))
+  if (a[2] - c[2]) == 0:
+    n = 1
+  else:
+    n = (a[2] - c[2])
+  return np.arctan(((a[1] - c[1])/n))
+
+# Change in Lux due to vector angle
 
 def beam_angle_block(angle_xy, angle_yz, beam_angle, lux):
   lux_xy = lux_yz = lux/2
@@ -41,37 +56,44 @@ def beam_angle_block(angle_xy, angle_yz, beam_angle, lux):
   lux = lux_xy + lux_yz
   return lux
 
+# Final lux calculation, including beam angle calculation
 def lux_angle(lux, a, c, beam_angle):
   angle_xy = angle_xy_sin(a,c)
   angle_yz = angle_yz_cos(a,c)
-  lux = beam_angle_block(angle_xy, angle_yz, beam_angle, lux)
-  return lux*np.cos(angle_yz_cos(a,c))*np.sin(angle_xy_sin(a,c))
+  lux_c = beam_angle_block(angle_xy, angle_yz, beam_angle, lux)
+  if lux_c < 0:
+    print("lux<0, lux = ", lux)
+    print("Reset to 0")
+    lux_c = 0
+  return lux_c*np.cos(angle_yz_cos(a,c))*np.sin(angle_xy_sin(a,c))
+
 
 # Pallet_anchor is the midpoint of the pallet face at the starting position
 pallet_anchor = [0,0,0]
 
-#dist_moved = vel*dt
-#pallet
 
 # Generate Pallet Face Coordinates
 # ^Z, >y
 
-# Input height and width, generate pts from -h/2 to h/2 and -w/2 and w/2
+# Input height and width, generate pts from -h/2 to h/2 and -w/2 and w/2 => can choose to generate pallet either both ways from origin or one-way
+# Use h/2 // w/2 or h//w based on this
 height_pallet = int(input("Height of pallet (in mm) = "))
 ht_2 = int(height_pallet/2)
 width_pallet = int(input("Width of pallet (in mm) = "))
 wd_2 = int(width_pallet/2)
 
-#pallet_start = [pallet_anchor[0]+int(input("starting point of the pallet = ")), 0,0]
+# Initialize Pallet
 
 pallet = [pallet_anchor]
 
-# create pallet
+# Create pallet
+
 for z in range(0, height_pallet, 5):
   for y in range(0, width_pallet, 5):
     pallet.append([0,y,z])
 #print("Pallet = ", pallet)
 print("# of pallet pts = ", len(pallet))
+
 
 # Create arc for incident angle
 
@@ -85,23 +107,17 @@ radius = float(input("Euclidean Distance from Pallet (in mm) = "))
 
 x = radius * np.cos(theta)
 y = radius * np.sin(theta)
+
 # the z will depend on # of LED, but for angle calculation we'll presume z=0
 z = 0
-
-#theta = np.linspace(-np.pi/6, np.pi/6, 100)
-#theta
-#radius = input()
-#x = radius * np.cos(theta)
-#y = radius * np.sin(theta)
-
-#print("X = ", x)
-#print("Y = ", y)
 
 coord = [x,y,z]
 
 #print("Coordinate = ", coord)
 
+
 # Generate array of LEDs
+
 num_LEDs = int(input("Number of LEDs in the array = "))
 dist_bw_LEDs = float(input("Distance between each LED (in mm) = "))
 LED_arr = []
@@ -112,9 +128,14 @@ for i in range(0,num_LEDs):
   #print(LED_arr[i])
 #print("LED_arr = ", LED_arr)
 
+
 # Calculating illumination at Pallet face
+
+# Initialize lux_at_face
 lux_at_face = np.zeros(len(pallet))
-init_lux = 6000 # at 2ft = 609.6mm, 11 deg lens
+
+init_lux = int(input("Enter init_lux at a particular dist (in mm): init_lux = ")) # 6000 lux at 2ft = 609.6mm, 11 deg lens # Can also make this a variable that the user inputs
+init_lux_dist = float(input("init_lux_dist (in mm) = "))
 beam_angle = np.deg2rad(int(input("Input beam angle in degrees = ")))
 print("Beam angle in radian = ", beam_angle)
 
@@ -122,35 +143,19 @@ print("Beam angle in radian = ", beam_angle)
 for pt in range(len(pallet)):
   for LED in range(10):
     dist = distance(LED_arr[LED], pallet[pt])
-    lux_dist = 6000*((609.6/dist)**2) #*np.cos(theta)
+    lux_dist = init_lux*((init_lux_dist/dist)**2) #*np.cos(theta)
     lux = lux_angle(lux_dist, LED_arr[LED], pallet[pt], beam_angle)
+    if lux<0:
+      #print("lux = ", lux)
+      #print("lux_dist = ", lux_dist)
+      #print("LED_arr[LED] idx = ", LED)
+      #print("pallet[pt] idx = ", pt)
+      lux = 0
+
     lux_at_face[pt] += lux
 
 print("lux at face = ", lux_at_face)
 
-
-
-# 3D Heatmap in Python using matplotlib
-
-# to make plot interactive
-#%matplotlib
-
-# 3D Heatmap in Python using matplotlib
-
-# to make plot interactive
-#%matplotlib 
-
-# importing required libraries
-from mpl_toolkits.mplot3d import Axes3D
-#import matplotlib.pyplot as plt
-#import numpy as np
-from pylab import *
-
-# creating a dummy dataset
-#x = np.random.randint(low=100, high=500, size=(1000,))
-#y = np.random.randint(low=300, high=500, size=(1000,))
-#z = np.random.randint(low=200, high=500, size=(1000,))
-#colo = [x + y + z]
 
 # Extract Y/Z coordinate pts
 Y = []
@@ -163,30 +168,30 @@ for i in range(len(pallet)):
 Y = np.array(Y)
 Z = np.array(Z)
 
-# creating figures
-fig = plt.figure(figsize=(10, 10))
-ax = fig.add_subplot(111, projection='3d')
+# Graphssss
+from mpl_toolkits.mplot3d import Axes3D
+#import matplotlib.pyplot as plt
+#import numpy as np
+from pylab import *
 
-# setting color bar
+#import matplotlib.pyplot as plt
+#from mpl_toolkits.mplot3d import Axes3D
+#import numpy as np
+
+x = Y
+y = Z
+z = lux_at_face
+
+fig = plt.figure(figsize=(6, 6))
+#ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot()
+ax.scatter(x, y, z, linewidths=1, alpha=.1, edgecolor='k', color = 'green')
 color_map = cm.ScalarMappable(cmap=cm.Greens)
 color_map.set_array(lux_at_face)
-
-# creating the heatmap
-img = ax.scatter(Y, Z, lux_at_face, marker='s',
-				s=200, color='green')
 plt.colorbar(color_map)
-
-# adding title and labels
-ax.set_title("3D Heatmap")
+ax.set_title("Heatmap")
 ax.set_xlabel('Y-axis')
 ax.set_ylabel('Z-axis')
-ax.set_zlabel('Lux')
-ax.invert_xaxis()
+#ax.set_zlabel('Lux')
 
-# displaying plot
 plt.show()
-
-
-# Global position input for the LED array - Euc dist from pallet - input()
-# Linear dist moved by the pallet = input()
-# change plot to a 2d heatmap
