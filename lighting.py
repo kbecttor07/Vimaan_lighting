@@ -141,7 +141,7 @@ print("Beam angle in radian = ", beam_angle)
 
 # Distance contribution
 for pt in range(len(pallet)):
-  for LED in range(10):
+  for LED in range(len(LED_arr)):
     dist = distance(LED_arr[LED], pallet[pt])
     lux_dist = init_lux*((init_lux_dist/dist)**2) #*np.cos(theta)
     lux = lux_angle(lux_dist, LED_arr[LED], pallet[pt], beam_angle)
