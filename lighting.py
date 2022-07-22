@@ -47,7 +47,7 @@ def beam_angle_block(angle_xy, angle_yz, beam_angle, lux):
     lux_xy = 0
   if angle_yz < (beam_angle/2):
     if angle_yz > (beam_angle/4):
-      lux = lux/4
+      lux_yz = lux/4
     if angle_yz < (beam_angle/4):
       lux_yz = lux/2
   else:
