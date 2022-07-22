@@ -103,7 +103,7 @@ incident_angle = float(input("Input an angle between 20* and 60* = "))
 
 theta = (np.pi/180)*incident_angle
 
-radius = float(input("Euclidean Distance from Pallet (in mm) = "))
+radius = float(input("Euclidean Distance from Global origin (in mm) = "))
 
 x = radius * np.cos(theta)
 y = radius * np.sin(theta)
