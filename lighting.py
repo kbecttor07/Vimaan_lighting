@@ -155,6 +155,7 @@ for pt in range(len(pallet)):
     lux_at_face[pt] += lux
 
 print("lux at face = ", lux_at_face)
+print("Max lux observed = ", max(lux_at_face))
 
 
 # Extract Y/Z coordinate pts
