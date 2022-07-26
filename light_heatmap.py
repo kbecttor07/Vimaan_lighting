@@ -191,15 +191,15 @@ dist_bw_LEDs = float(input("Distance between each LED (in mm) = "))
 LED_arr = []
 
 # Add ref_arr for the calculation of incident angle
-incident_ang_ref_arr = []
-ref_coord = pallet_anchor
+#incident_ang_ref_arr = []
+#ref_coord = pallet_anchor
 
 for i in range(-num_LEDs_2,num_LEDs_2):
   coord[2] = i*dist_bw_LEDs                 # to get coordinate of LED
-  ref_coord[2] = i*dist_bw_LEDs             # to get corresponding coordinate for incident angle on pallet
+  #ref_coord[2] = i*dist_bw_LEDs             # to get corresponding coordinate for incident angle on pallet
   #print("Z_i = ", coord[2])
-  LED_arr.append(copy.deepcopy(coord))
-  incident_ang_ref_arr.append(copy.deepcopy(ref_coord))
+  LED_arr.append([x,y,i*dist_bw_LEDs])
+  #incident_ang_ref_arr.append(copy.deepcopy(ref_coord))
   #print(LED_arr[i])
 #print("LED_arr = ", LED_arr)
 
