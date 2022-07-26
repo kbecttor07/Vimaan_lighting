@@ -89,7 +89,7 @@ def beam_angle_block(angle_xy, angle_xz, beam_angle, lux, theta):
 
     else:
 
-     # print("Bigger angle_xz > beam/2 = ", bigger_angle)
+      #print("Bigger angle_xz > beam/2 = ", np.rad2deg(bigger_angle))
 
       return 0
   
@@ -105,7 +105,7 @@ def beam_angle_block(angle_xy, angle_xz, beam_angle, lux, theta):
 
     else:
 
-      #print("Bigger angle_xy > beam/2 = ", bigger_angle)
+      print("Bigger angle_xy > beam/2 = ", np.rad2deg(bigger_angle))
 
       return 0
 
@@ -124,7 +124,9 @@ def beam_angle_block(angle_xy, angle_xz, beam_angle, lux, theta):
 
 def lux_angle(lux, a, c, beam_angle, theta):
   angle_xy = angle_xy_sin(a,c) 
-  #print("angle_xy = ", np.rad2deg(angle_xy))
+  print("a = ", a)
+  print("c = ", c)
+  print("angle_xy = ", np.rad2deg(angle_xy))
   angle_xz = angle_xz_cos(a,c) 
   #print("angle_xz = ", np.rad2deg(angle_xz))
   lux_ac = beam_angle_block(angle_xy, angle_xz, beam_angle, lux, theta)
@@ -170,8 +172,8 @@ theta = (np.pi/180)*incident_angle
 
 radius = float(input("Euclidean Distance from Pallet Anchor (in mm) = "))
 
-x = radius * np.sin(theta)
-y = radius * np.cos(theta)
+x = radius * np.cos(theta)
+y = radius * np.sin(theta)
 
 # the z will depend on # of LED, but for angle calculation we'll presume z=0
 z = 0
@@ -303,4 +305,6 @@ fig, ax = plt.subplots(figsize=(20, 15))
 df = pallet_lux_df.pivot('pallet_z_pt', 'pallet_y_pt', 'total_led_lux')
 sns.heatmap(data=df, ax=ax)
 ax.invert_yaxis()
-fig.show()
+print("plot now")
+plt.show()
+#zd = input("input")
